@@ -29,14 +29,15 @@ impl AppConfig {
             .build()
             .expect("Failed to load configuration");
 
-        settings.try_deserialize().expect("Invalid config structure")
+        settings
+            .try_deserialize()
+            .expect("Invalid config structure")
     }
 
     pub fn get_kafka_config(&self, config_name: &str) -> Option<KafkaConfig> {
         self.kafka.get(config_name).cloned()
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -53,7 +54,6 @@ mod tests {
         let config = AppConfig::new();
         assert!(config.get_kafka_config("nonexistent").is_none());
     }
-
 
     #[test]
     fn kafka_config_has_correct_default_values() {
