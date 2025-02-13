@@ -1,19 +1,21 @@
+use crate::domain::log::LogMessage;
+use crate::infrastructure::config::KafkaConfig;
+use crate::infrastructure::local_log_storage::LocalLogStorage;
+use crate::infrastructure::log_repository::LogRepository;
+use async_trait::async_trait;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use std::time::Duration;
-use async_trait::async_trait;
-use crate::domain::log::LogMessage;
-use crate::infrastructure::log_repository::LogRepository;
-use crate::infrastructure::config::KafkaConfig;
-use tracing::{info, error};
+use tracing::{error, info};
 
 pub struct KafkaLogRepository {
     producer: FutureProducer,
     topic: String,
+    pub local_storage: LocalLogStorage,
 }
 
 impl KafkaLogRepository {
-    pub fn new(config: KafkaConfig) -> Self {
+    pub fn new(config: KafkaConfig, storage: LocalLogStorage) -> Self {
         let producer = ClientConfig::new()
             .set("bootstrap.servers", &config.bootstrap_servers)
             .set("acks", &config.acks)
@@ -31,21 +33,25 @@ impl KafkaLogRepository {
         Self {
             producer,
             topic: config.topic,
+            local_storage: storage,
         }
     }
-}
 
-#[async_trait]
-impl LogRepository for KafkaLogRepository {
-    async fn save(&self, log: LogMessage) {
+    pub async fn send_to_kafka(&self, log: &LogMessage) -> Result<(), String> {
         let payload = serde_json::to_string(&log).unwrap();
         let record = FutureRecord::to(&self.topic)
             .payload(&payload)
             .key(&log.message);
 
         match self.producer.send(record, Duration::from_secs(1)).await {
-            Ok(_) => info!("✅ Sent log: {:?}", log),
-            Err(e) => error!("❌ Failed to send log: {:?}", e),
+            Ok(_) => {
+                info!("✅ Log sent: {:?}", log);
+                Ok(())
+            }
+            Err(e) => {
+                error!("❌ Kafka send failed: {:?}", e);
+                Err("Kafka send failed".to_string())
+            }
         }
     }
 }
