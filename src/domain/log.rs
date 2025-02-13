@@ -1,28 +1,28 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Default,Debug,Clone,Serialize,Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LogMessage {
-    pub message: String
+    pub message: String,
 }
 pub struct LogBuilder {
-    log: LogMessage
+    log: LogMessage,
 }
-impl LogBuilder{
+impl LogBuilder {
     pub fn new() -> LogBuilder {
         LogBuilder {
-            log: LogMessage::new()
+            log: LogMessage::new(),
         }
     }
     pub fn message(mut self, message: String) -> LogBuilder {
         self.log.message = message;
         self
     }
-    pub fn build(&self) -> Log {
+    pub fn build(&self) -> LogMessage {
         self.log.clone()
     }
 }
 impl LogMessage {
-    pub fn new() -> Log {
+    pub fn new() -> LogMessage {
         LogMessage::default()
     }
 }
@@ -33,7 +33,9 @@ mod tests {
 
     #[test]
     fn log_builder_creates_log_with_message() {
-        let log = LogBuilder::new().message("Test message".to_string()).build();
+        let log = LogBuilder::new()
+            .message("Test message".to_string())
+            .build();
         assert_eq!(log.message, "Test message");
     }
 
@@ -45,13 +47,16 @@ mod tests {
 
     #[test]
     fn log_builder_allows_message_update() {
-        let log = LogBuilder::new().message("Initial message".to_string()).message("Updated message".to_string()).build();
+        let log = LogBuilder::new()
+            .message("Initial message".to_string())
+            .message("Updated message".to_string())
+            .build();
         assert_eq!(log.message, "Updated message");
     }
 
     #[test]
     fn log_default_is_empty_message() {
-        let log = Log::default();
+        let log = LogMessage::default();
         assert_eq!(log.message, "");
     }
 }
