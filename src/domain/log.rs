@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Default,Debug,Clone,Serialize,Deserialize)]
-pub struct Log {
+pub struct LogMessage {
     pub message: String
 }
 pub struct LogBuilder {
-    log: Log
+    log: LogMessage
 }
 impl LogBuilder{
     pub fn new() -> LogBuilder {
         LogBuilder {
-            log: Log::new()
+            log: LogMessage::new()
         }
     }
     pub fn message(mut self, message: String) -> LogBuilder {
@@ -21,9 +21,9 @@ impl LogBuilder{
         self.log.clone()
     }
 }
-impl Log {
+impl LogMessage {
     pub fn new() -> Log {
-        Log::default()
+        LogMessage::default()
     }
 }
 

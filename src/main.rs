@@ -1,5 +1,6 @@
 mod domain;
 mod application;
+mod infrastructure;
 
 use log::info;
 
