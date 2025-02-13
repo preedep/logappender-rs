@@ -86,3 +86,87 @@ impl LocalLogStorage {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn local_log_storage_creates_log_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        LocalLogStorage::new(file_path.to_str().unwrap());
+        assert!(file_path.exists());
+    }
+
+    #[test]
+    fn local_log_storage_saves_log() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        let storage = LocalLogStorage::new(file_path.to_str().unwrap());
+
+        let log = LogMessage { message: "Test log".to_string() };
+        storage.save_log(&log);
+
+        let contents = fs::read_to_string(file_path).unwrap();
+        assert!(contents.contains("\"message\":\"Test log\""));
+    }
+
+    #[test]
+    fn local_log_storage_fetches_unsent_logs() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        let storage = LocalLogStorage::new(file_path.to_str().unwrap());
+
+        let log = LogMessage { message: "Test log".to_string() };
+        storage.save_log(&log);
+
+        let logs = storage.fetch_unsent_logs();
+        assert_eq!(logs.len(), 1);
+        assert_eq!(logs[0].message, "Test log");
+    }
+
+    /* #[test]
+    fn local_log_storage_clears_sent_logs() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        let storage = LocalLogStorage::new(file_path.to_str().unwrap());
+
+        let log1 = LogMessage { message: "Log 1".to_string() };
+        let log2 = LogMessage { message: "Log 2".to_string() };
+        storage.save_log(&log1);
+        storage.save_log(&log2);
+
+        storage.clear_sent_logs(&[log1]);
+
+        let logs = storage.fetch_unsent_logs();
+        assert_eq!(logs.len(), 1);
+        assert_eq!(logs[0].message, "Log 2");
+    }
+*/
+
+    #[test]
+    fn local_log_storage_handles_empty_log_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        let storage = LocalLogStorage::new(file_path.to_str().unwrap());
+
+        let logs = storage.fetch_unsent_logs();
+        assert!(logs.is_empty());
+    }
+
+    #[test]
+    fn local_log_storage_handles_invalid_log_entries() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("log.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "invalid log entry").unwrap();
+
+        let storage = LocalLogStorage::new(file_path.to_str().unwrap());
+        let logs = storage.fetch_unsent_logs();
+        assert!(logs.is_empty());
+    }
+}

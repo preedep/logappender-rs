@@ -14,3 +14,4 @@ async-trait = "0.1"
 config = "0.15"
 rdkafka = {version = "0.37" , features = ["tokio"]}
 tracing = "0.1.41"
+tempfile = "3.16.0"
