@@ -1,4 +1,5 @@
 mod domain;
+mod application;
 
 use log::info;
 
