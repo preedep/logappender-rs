@@ -25,8 +25,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         local_storage,
     ));
     let log_queue = AsyncLogQueue::new(kafka_repo.clone());
-
-    tokio::spawn(monitor_kafka_health("localhost:9092".to_string()));
+    let bootstrap_server =  config.get_kafka_config("default").unwrap().bootstrap_servers;
+    tokio::spawn(monitor_kafka_health(bootstrap_server));
     tokio::spawn(background_log_resender::resend_failed_logs(
         kafka_repo.clone(),
     ));
