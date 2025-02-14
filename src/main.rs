@@ -26,12 +26,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(monitor_kafka_health("localhost:9092".to_string()));
     tokio::spawn(background_log_resender::resend_failed_logs(kafka_repo.clone()));
 
+    /*
     for i in 1..=100 {
         let builder = LogBuilder::new().message(format!("Log message #{}", i));
         let log = builder.build();
         log_queue.log(log).await;
         sleep(Duration::from_millis(10)).await;
-    }
+    }*/
 
     info!("✅ Microservice log producer completed.");
 
