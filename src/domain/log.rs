@@ -83,20 +83,33 @@ where
     pub event_date_time: String,
     pub log_type: LogType,
     pub log_level: LogLevel,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub app_version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub app_address: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub service_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub service_version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_location: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub caller_channel_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub caller_user: Option<String>,
     pub correlation_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub relation_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub execution_time: Option<u64>,
     pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub request: Option<RequestObj<T>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub response: Option<ResponseObj<K>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub extra_fields: Option<HashMap<String, String>>,
 }
 
