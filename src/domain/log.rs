@@ -51,6 +51,14 @@ impl LogBuilder {
             log: LogMessage::new(log_type),
         }
     }
+    pub fn log_type(mut self, log_type: LogType) -> LogBuilder {
+        self.log.log_type = log_type;
+        self
+    }
+    pub fn log_level(mut self, log_level: LogLevel) -> LogBuilder {
+        self.log.log_level = log_level;
+        self
+    }
     pub fn message(mut self, message: String) -> LogBuilder {
         self.log.message = message;
         self
