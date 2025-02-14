@@ -1,6 +1,6 @@
+use once_cell::sync::Lazy;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use once_cell::sync::Lazy;
 use tokio::time::{sleep, Duration};
 use tracing::{error, info};
 
