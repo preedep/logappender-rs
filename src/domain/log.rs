@@ -142,41 +142,45 @@ impl LogBuilder
         }
     }
 
+    #[allow(dead_code)]
     pub fn log_type(mut self, log_type: LogType) -> Self {
         self.log.log_type = log_type;
         self
     }
 
+    #[allow(dead_code)]
     pub fn log_level(mut self, log_level: LogLevel) -> Self {
         self.log.log_level = log_level;
         self
     }
 
+    #[allow(dead_code)]
     pub fn message(mut self, message: String) -> Self {
         self.log.message = message;
         self
     }
 
+    #[allow(dead_code)]
     pub fn code_location(mut self, location: String) -> Self {
         self.log.code_location = Some(location);
         self
     }
-
+    #[allow(dead_code)]
     pub fn request(mut self, request: RequestObj) -> Self {
         self.log.request = Some(request);
         self
     }
-
+    #[allow(dead_code)]
     pub fn response(mut self, response: ResponseObj) -> Self {
         self.log.response = Some(response);
         self
     }
-
+    #[allow(dead_code)]
     pub fn add_extra_field(mut self, key: String, value: String) -> Self {
         self.log.extra_fields.get_or_insert_with(HashMap::new).insert(key, value);
         self
     }
-
+    #[allow(dead_code)]
     pub fn build(&self) -> LogResult<LogMessage> {
         let log = self.log.clone();
 

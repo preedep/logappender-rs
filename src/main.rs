@@ -2,7 +2,7 @@ mod application;
 mod domain;
 mod infrastructure;
 
-use crate::domain::log::{LogBuilder, LogMessage};
+use crate::domain::log::{LogBuilder};
 use crate::infrastructure::async_log_queue::AsyncLogQueue;
 use crate::infrastructure::background_log_resender;
 use crate::infrastructure::circuit_breaker::monitor_kafka_health;
@@ -11,8 +11,10 @@ use crate::infrastructure::kafka_log_repository::KafkaLogRepository;
 use crate::infrastructure::local_log_storage::LocalLogStorage;
 use log::info;
 use std::sync::Arc;
-use std::time::Duration;
-use tokio::time::sleep;
+
+
+use crate::domain::log::LogLevel::Info;
+use crate::domain::log::LogType::AppLog;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,13 +33,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         kafka_repo.clone(),
     ));
 
-    /*
+
     for i in 1..=100 {
-        let builder = LogBuilder::new().message(format!("Log message #{}", i));
-        let log = builder.build();
+        let builder = LogBuilder::new(AppLog,Info, "Log message","1234").build();
+        let log = builder.unwrap();
         log_queue.log(log).await;
-        sleep(Duration::from_millis(10)).await;
-    }*/
+    }
 
     info!("✅ Microservice log producer completed.");
 

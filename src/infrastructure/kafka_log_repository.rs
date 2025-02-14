@@ -3,7 +3,6 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 use std::time::Duration;
 use async_trait::async_trait;
 use crate::domain::log::LogMessage;
-use crate::infrastructure::log_repository::LogRepository;
 use crate::infrastructure::config::KafkaConfig;
 use crate::infrastructure::local_log_storage::LocalLogStorage;
 use crate::infrastructure::circuit_breaker::KAFKA_AVAILABLE;
