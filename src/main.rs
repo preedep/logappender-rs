@@ -1,13 +1,11 @@
-use log::info;
 use crate::application::log_service::LogService;
 use crate::domain::log::LogLevel;
 use crate::infrastructure::config::AppConfig;
+use log::info;
 
 mod application;
 mod domain;
 mod infrastructure;
-
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -19,16 +17,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for _ in 0..10 {
         log_service
-            .log_app(LogLevel::Info,
-                     "Microservice log producer is running.",
-                     "123"
+            .log_app(
+                LogLevel::Info,
+                "Microservice log producer is running.",
+                "123",
             )
             .await;
 
-
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
-
 
     info!("✅ Microservice log producer completed.");
     Ok(())

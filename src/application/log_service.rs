@@ -1,13 +1,13 @@
 use crate::domain::log::{LogBuilder, LogLevel, LogMessage, LogType, RequestObj, ResponseObj};
 use crate::infrastructure::async_log_queue::AsyncLogQueue;
+use crate::infrastructure::background_log_resender;
+use crate::infrastructure::circuit_breaker::monitor_kafka_health;
 use crate::infrastructure::config::AppConfig;
 use crate::infrastructure::kafka_log_repository::KafkaLogRepository;
 use crate::infrastructure::local_log_storage::LocalLogStorage;
 use log::debug;
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::infrastructure::background_log_resender;
-use crate::infrastructure::circuit_breaker::monitor_kafka_health;
 
 pub struct LogService {
     pub config: AppConfig,
@@ -21,8 +21,6 @@ impl LogService {
             let local_storage = LocalLogStorage::new(&format!("logs_backup_{}.json", name));
             let kafka_repo = Arc::new(KafkaLogRepository::new(kafka_config, local_storage));
             queue_table.insert(LogType::AppLog, Arc::new(AsyncLogQueue::new(kafka_repo)));
-            //queue_table.insert(LogType::RequestLog, Arc::new(AsyncLogQueue::new(kafka_repo)));
-            //queue_table.insert(LogType::RequestExternalLog, Arc::new(AsyncLogQueue::new(kafka_repo)));
         }
         let bootstrap_server = config
             .get_kafka_config("default")
@@ -37,8 +35,13 @@ impl LogService {
     }
     pub async fn resend_if_failed(&self) {
         for (name, kafka_config) in self.config.clone().kafka {
-            let kafka_repo = Arc::new(KafkaLogRepository::new(kafka_config, LocalLogStorage::new(&format!("logs_backup_{}.json", name))));
-            tokio::spawn(background_log_resender::resend_failed_logs(kafka_repo.clone()));
+            let kafka_repo = Arc::new(KafkaLogRepository::new(
+                kafka_config,
+                LocalLogStorage::new(&format!("logs_backup_{}.json", name)),
+            ));
+            tokio::spawn(background_log_resender::resend_failed_logs(
+                kafka_repo.clone(),
+            ));
         }
     }
 

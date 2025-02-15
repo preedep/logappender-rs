@@ -20,7 +20,7 @@ impl LogError {
 
 type LogResult<T> = Result<T, LogError>;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq,Eq,Hash)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub enum LogType {
     #[default]
     AppLog,
@@ -30,7 +30,7 @@ pub enum LogType {
     UserAccessLog,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq,Eq,Hash)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub enum LogLevel {
     #[default]
     Info,
