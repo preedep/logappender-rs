@@ -21,7 +21,8 @@ impl AsyncLogQueue {
             loop {
                 while let Ok(log) = rx.try_recv() {
                     batch.push(log);
-                    if batch.len() >= 10 { // ✅ Process in batches of 10
+                    if batch.len() >= 10 {
+                        // ✅ Process in batches of 10
                         break;
                     }
                 }
@@ -49,13 +50,12 @@ impl AsyncLogQueue {
     }
 
     async fn send_with_retries(kafka_repo: Arc<KafkaLogRepository>, log: LogMessage) {
-        let retry_strategy = ExponentialBackoff::from_millis(500)
-            .map(jitter)
-            .take(5); // ✅ Retry up to 5 times
+        let retry_strategy = ExponentialBackoff::from_millis(500).map(jitter).take(5); // ✅ Retry up to 5 times
 
         let result = Retry::spawn(retry_strategy, || async {
             kafka_repo.send_to_kafka(&log).await
-        }).await;
+        })
+        .await;
 
         if let Err(_) = result {
             error!("❌ Kafka unreachable, saving log locally.");

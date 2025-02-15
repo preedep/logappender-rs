@@ -1,15 +1,15 @@
-use rdkafka::config::ClientConfig;
-use rdkafka::producer::{FutureProducer, FutureRecord};
-use std::time::Duration;
-use async_trait::async_trait;
 use crate::domain::log::LogMessage;
+use crate::infrastructure::circuit_breaker::KAFKA_AVAILABLE;
 use crate::infrastructure::config::KafkaConfig;
 use crate::infrastructure::local_log_storage::LocalLogStorage;
-use crate::infrastructure::circuit_breaker::KAFKA_AVAILABLE;
-use tokio_retry::strategy::{ExponentialBackoff, jitter};
-use tokio_retry::Retry;
-use tracing::{info, error};
+use async_trait::async_trait;
+use rdkafka::config::ClientConfig;
+use rdkafka::producer::{FutureProducer, FutureRecord};
 use std::sync::atomic::Ordering;
+use std::time::Duration;
+use tokio_retry::strategy::{jitter, ExponentialBackoff};
+use tokio_retry::Retry;
+use tracing::{error, info};
 
 pub struct KafkaLogRepository {
     producer: FutureProducer,
@@ -51,18 +51,15 @@ impl KafkaLogRepository {
         let topic = self.topic.clone(); // Capture the topic name
         let key = log.message.clone(); // Capture the key
 
-        let retry_strategy = ExponentialBackoff::from_millis(500)
-            .map(jitter)
-            .take(5); // Retry up to 5 times
+        let retry_strategy = ExponentialBackoff::from_millis(500).map(jitter).take(5); // Retry up to 5 times
 
         let result = Retry::spawn(retry_strategy, || async {
             // Create a new FutureRecord inside the retry logic
-            let record = FutureRecord::to(&topic)
-                .payload(&payload)
-                .key(&key);
+            let record = FutureRecord::to(&topic).payload(&payload).key(&key);
 
             self.producer.send(record, Duration::from_secs(1)).await
-        }).await;
+        })
+        .await;
 
         match result {
             Ok(_) => {
@@ -70,11 +67,13 @@ impl KafkaLogRepository {
                 Ok(())
             }
             Err(err) => {
-                error!("❌ Kafka send failed: {:?}. Saving log to local storage.", err);
+                error!(
+                    "❌ Kafka send failed: {:?}. Saving log to local storage.",
+                    err
+                );
                 self.local_storage.save_log(log);
                 Err("Kafka send failed".to_string())
             }
         }
     }
-
 }

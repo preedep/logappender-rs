@@ -20,7 +20,7 @@ impl LogError {
 
 type LogResult<T> = Result<T, LogError>;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq,Eq,Hash)]
 pub enum LogType {
     #[default]
     AppLog,
@@ -30,7 +30,7 @@ pub enum LogType {
     UserAccessLog,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq,Eq,Hash)]
 pub enum LogLevel {
     #[default]
     Info,
@@ -113,9 +113,13 @@ where
     pub extra_fields: Option<HashMap<String, String>>,
 }
 
-impl LogMessage
-{
-    pub fn new(log_type: LogType, log_level: LogLevel, message: &str, correlation_id: &str) -> Self {
+impl LogMessage {
+    pub fn new(
+        log_type: LogType,
+        log_level: LogLevel,
+        message: &str,
+        correlation_id: &str,
+    ) -> Self {
         Self {
             event_date_time: Utc::now().to_rfc3339(),
             log_type,
@@ -147,9 +151,13 @@ where
     log: LogMessage<T, K>,
 }
 
-impl LogBuilder
-{
-    pub fn new(log_type: LogType, log_level: LogLevel, message: &str, correlation_id: &str) -> Self {
+impl LogBuilder {
+    pub fn new(
+        log_type: LogType,
+        log_level: LogLevel,
+        message: &str,
+        correlation_id: &str,
+    ) -> Self {
         Self {
             log: LogMessage::new(log_type, log_level, message, correlation_id),
         }
@@ -190,14 +198,20 @@ impl LogBuilder
     }
     #[allow(dead_code)]
     pub fn add_extra_field(mut self, key: String, value: String) -> Self {
-        self.log.extra_fields.get_or_insert_with(HashMap::new).insert(key, value);
+        self.log
+            .extra_fields
+            .get_or_insert_with(HashMap::new)
+            .insert(key, value);
         self
     }
     #[allow(dead_code)]
     pub fn build(&self) -> LogResult<LogMessage> {
         let log = self.log.clone();
 
-        if matches!(log.log_type, LogType::RequestLog | LogType::RequestExternalLog) {
+        if matches!(
+            log.log_type,
+            LogType::RequestLog | LogType::RequestExternalLog
+        ) {
             if log.request.is_none() {
                 return Err(LogError::new("Request object is missing"));
             }

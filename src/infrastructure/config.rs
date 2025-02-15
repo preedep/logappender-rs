@@ -17,7 +17,7 @@ pub struct KafkaConfig {
     pub ssl_ca_location: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
     pub kafka: HashMap<String, KafkaConfig>,
 }

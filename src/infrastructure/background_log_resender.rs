@@ -1,9 +1,9 @@
-use crate::infrastructure::kafka_log_repository::KafkaLogRepository;
-use tokio::time::{sleep, Duration};
-use tracing::{info, error};
-use std::sync::Arc;
 use crate::infrastructure::circuit_breaker::KAFKA_AVAILABLE;
+use crate::infrastructure::kafka_log_repository::KafkaLogRepository;
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use tokio::time::{sleep, Duration};
+use tracing::{error, info};
 
 pub async fn resend_failed_logs(kafka_repo: Arc<KafkaLogRepository>) {
     loop {

@@ -68,7 +68,8 @@ impl LocalLogStorage {
         let _guard = self.lock.lock().unwrap();
 
         let logs = self.fetch_unsent_logs();
-        let remaining_logs: Vec<LogMessage> = logs.into_iter()
+        let remaining_logs: Vec<LogMessage> = logs
+            .into_iter()
             .filter(|log| !successfully_sent.contains(log))
             .collect();
 
@@ -86,4 +87,3 @@ impl LocalLogStorage {
         }
     }
 }
-

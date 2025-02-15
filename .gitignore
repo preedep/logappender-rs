@@ -30,3 +30,4 @@ Cargo.lock
 /.idea/vcs.xml
 /config.toml
 /logs_backup.json
+/logs_backup_default.json
